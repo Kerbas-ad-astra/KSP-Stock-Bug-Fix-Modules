@@ -6,7 +6,7 @@
  * (https://creativecommons.org/licenses/by-nc-sa/4.0/)
  * 
  *
- * ModuleRSASFix - Written for KSP v1.0
+ * ModuleRSASFix - Written for KSP v1.1.2
  * 
  * - Fixes overreaction by the SAS for small vessels with excess torque/RCS control.
  * - Improved reduction of wobbly craft
@@ -14,6 +14,10 @@
  * - (Plus) Gives tweakable RSAS adjustment parameters
  * 
  * Change Log:
+ * - v00.06  ( 8 May 16)  Updated for KSP v1.1.2
+ * - v00.05  (21 Apr 16)  Updated for KSP v1.1.0
+ * - v00.04  (27 Dec 15)  Fixed a bug causing the Plus features to be disabled
+ * - v00.03  (10 Nov 15)  Updated for KSP v1.0.5, integrated into new StockBugFixPlusController
  * - v00.02  (1 Jul 15)   Recompiled and tested for KSP v1.0.4, adjusted response
  * - v00.01  (7 Jun 15)   Initial Release
  * 
@@ -24,6 +28,16 @@ using KSP;
 
 namespace ClawKSP
 {
+
+    [KSPAddon(KSPAddon.Startup.MainMenu, false)]
+    public class PilotRSASFixHook : MonoBehaviour
+    {
+        public void Start()
+        {
+            StockBugFixPlusController.HookModule("ModuleCommand", "PilotRSASFix");
+        }
+    }
+
     public class PilotRSASFix : PartModule
     {
         [KSPField(guiName = "Min Response", isPersistant = true, guiActive = true, guiActiveEditor = true)]
@@ -58,7 +72,7 @@ namespace ClawKSP
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
-            Debug.Log(moduleName + ".Start(): v00.02");
+            Debug.Log(moduleName + ".Start(): v00.06");
 
             GameEvents.onVesselChange.Add(DisableGUI);
             DisableGUI(null);
@@ -93,12 +107,13 @@ namespace ClawKSP
 
         private void SetupStockPlus()
         {
-            if (StockPlusController.plusActive == false || plusEnabled == false)
+            if (StockBugFixPlusController.plusActive == false || StockBugFixPlusController.pilotRSASPlus == false)
             {
                 plusEnabled = false;
                 return;
             }
 
+            plusEnabled = true;
             Debug.Log(moduleName + " StockPlus Enabled");
         }
 
